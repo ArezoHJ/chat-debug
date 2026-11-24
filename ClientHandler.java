@@ -30,9 +30,11 @@ public class ClientHandler implements Runnable {
             }
 
             name = firstLine.trim();
-            clients.add(out);
+            synchronized (clients) {
+                clients.add(out);
+            }
             out.println("Välkommen " + name + "! Skriv /online eller /quit.");
-            System.out.println(name + " anslöt. Online: " + clients.size());
+            System.out.println(name + " anslöt. Online: " + getOnlineCount());
 
             String message;
             while ((message = in.readLine()) != null) {
@@ -40,21 +42,36 @@ public class ClientHandler implements Runnable {
                     break;
                 }
 
-                if (message == "/online") {
-                    out.println("Online: " + clients.size());
+                if (message.equalsIgnoreCase("/online")) {
+                    out.println("Online: " + getOnlineCount());
                     continue;
                 }
 
-                for (PrintWriter receiver : clients) {
-                    if (receiver == out) {
-                        receiver.println(name + ": " + message);
-                    }
-                }
+                broadcast(name + ": " + message);
             }
         } catch (IOException e) {
             System.out.println("Klientfel: " + e.getMessage());
         } finally {
-            System.out.println(name + " lämnade. Online: " + clients.size());
+            if (out != null) {
+                synchronized (clients) {
+                    clients.remove(out);
+                }
+            }
+            System.out.println(name + " lämnade. Online: " + getOnlineCount());
+        }
+    }
+
+    private int getOnlineCount() {
+        synchronized (clients) {
+            return clients.size();
+        }
+    }
+
+    private void broadcast(String message) {
+        synchronized (clients) {
+            for (PrintWriter receiver : clients) {
+                receiver.println(message);
+            }
         }
     }
 }
