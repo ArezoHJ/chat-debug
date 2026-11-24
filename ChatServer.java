@@ -9,6 +9,21 @@ import java.util.concurrent.Executors;
 
 public class ChatServer {
 
+
+    /*
+    TODO AS A GROUP
+     1. Flera Klienter anslutna samtidigt
+     2. Meddelande skickas till samtliga klienter
+     3. Kommandot /online ska fungera korrekt
+     4. Klienter kan kopplas ned när de skriver /quit
+     5- Server håller rätt på antal anslutna klienter
+
+     */
+
+
+
+
+
     public static void main(String[] args) {
         List<PrintWriter> clients = new ArrayList<>();
         ExecutorService pool = Executors.newFixedThreadPool(10);
